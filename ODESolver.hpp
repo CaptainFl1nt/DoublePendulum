@@ -38,7 +38,8 @@ class ODESolver {
         
         vector<vector<double>>* getSolution() { return &solution; }
         
-        virtual void Solve() = 0;
+        void Solve();
+	virtual vector<double> next(vector<double> y, double t) = 0;
         
         ~ODESolver() { }
 };
@@ -85,6 +86,16 @@ void ODESolver::setFunc(vector<double> (*func)(vector<double>, double)) {
 void ODESolver::setDiffEqn(DifferentialEquation* diffEqn) {
     eqnObj = diffEqn;
     useFunc = false;
+}
+
+void ODESolver::Solve() {
+    solution = vector<vector<double>>((int) (timetotal/dt)+1);
+    vector<double> y(dim);
+    y = yinitial;
+    for (int j = 0; j*dt <= timetotal; j++) {
+        solution[j] = y;
+        y = next(y, j*dt);
+    }
 }
 
 void ODESolver::output(string filename) {
